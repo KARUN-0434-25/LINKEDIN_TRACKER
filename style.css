@@ -14,10 +14,7 @@
             color: var(--text-color);
             background-color: #0a0118;
             /* Grid Background derived from provided reference images */
-            background-image: 
-                linear-gradient(rgba(157, 78, 221, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(157, 78, 221, 0.1) 1px, transparent 1px),
-                radial-gradient(circle at center, #1a0033 0%, #050010 100%);
+            background-image: linear-gradient(rgba(157, 78, 221, 0.1) 1px, transparent 1px),linear-gradient(90deg, rgba(157, 78, 221, 0.1) 1px, transparent 1px),radial-gradient(circle at center, #1a0033 0%, #050010 100%);
             background-size: 40px 40px, 40px 40px, 100% 100%;
             background-attachment: fixed;
         }

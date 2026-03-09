@@ -3,367 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Network Core | Dashboard</title>
+    <title>Master Network | Core Dashboard</title>
     <style>
         :root {
-            --bg-deep: #0f172a;
-            --bg-card: #1e293b;
-            --accent-blue: #3b82f6;
-            --accent-purple: #8b5cf6;
-            --success-green: #10b981;
-            --danger-red: #ef4444;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --border-color: rgba(255, 255, 255, 0.1);
+            --bg-deep: #0E100A; 
+            --bg-card: rgba(31, 31, 31, 0.85); 
+            --accent-lime: #D2F96F;
+            --text-main: #FFFFFF;
+            --text-dim: #888888;
+            --border-color: rgba(210, 249, 111, 0.15);
+            --danger: #ff4444;
         }
 
         body {
             margin: 0;
             padding: 40px 20px;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-deep);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             color: var(--text-main);
-            line-height: 1.5;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .container { max-width: 1200px; margin: 0 auto; }
+        /* ### ANIMATED RIDGE BACKGROUND ### */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-deep);
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 200%; height: 100%;
+            z-index: -1;
+            background-image: repeating-linear-gradient(
+                to right,
+                rgba(210, 249, 111, 0.22) 0px,
+                rgba(210, 249, 111, 0.12) 2px,
+                rgba(0, 0, 0, 0.9) 5px,
+                #000000 8px,
+                #000000 10px,
+                rgba(210, 249, 111, 0.04) 11px,
+                #000000 15px
+            );
+            mask-image: radial-gradient(circle at 20% 30%, black, rgba(0,0,0,0.7), transparent);
+            -webkit-mask-image: radial-gradient(circle at 20% 30%, black, rgba(0,0,0,0.7), transparent);
+            opacity: 0.5;
+            animation: breathe 8s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            position: relative; 
+        }
 
         h2 { 
-            font-weight: 700; 
-            letter-spacing: -0.025em; 
-            margin-bottom: 30px; 
-            color: var(--text-main);
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 3px; 
+            color: var(--accent-lime);
+            margin-bottom: 30px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 10px;
         }
 
-        /* Input Panel */
+        /* Input Form */
         .form-section {
             background: var(--bg-card);
-            padding: 24px;
+            backdrop-filter: blur(12px);
+            padding: 25px;
             border-radius: 12px;
             border: 1px solid var(--border-color);
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
         }
 
-        input {
-            background: #0f172a;
-            border: 1px solid var(--border-color);
-            padding: 12px 16px;
+        input, select {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            padding: 14px;
             border-radius: 8px;
             color: white;
             flex: 1;
-            min-width: 150px;
-            transition: all 0.2s;
-        }
-
-        input:focus {
+            min-width: 160px;
             outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s;
         }
 
-        .add-btn {
-            background: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 0 24px;
+        input:focus { border-color: var(--accent-lime); }
+
+        .btn {
+            padding: 0 30px;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-transform: uppercase;
+            font-size: 11px;
         }
 
-        .add-btn:hover { background: #2563eb; transform: translateY(-1px); }
+        .add-btn { background: var(--accent-lime); color: #000; }
+        .add-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(210, 249, 111, 0.5); }
 
-        /* Toolbar */
-        .toolbar {
+        .sec-btn { background: transparent; border: 1px solid var(--accent-lime); color: var(--accent-lime); }
+        .sec-btn:hover { background: var(--accent-lime); color: #000; }
+
+        .controls {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-bottom: 20px;
             gap: 15px;
         }
 
-        .search-box { flex: 1; max-width: 400px; }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-outline:hover { background: rgba(255,255,255,0.05); }
-
-        /* Table Design */
-        .table-container {
+        /* Table */
+        .table-wrapper {
             background: var(--bg-card);
+            backdrop-filter: blur(12px);
             border-radius: 12px;
             border: 1px solid var(--border-color);
             overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
+        table { width: 100%; border-collapse: collapse; }
+        th { 
+            text-align: left; 
+            padding: 18px 25px; 
+            background: rgba(0,0,0,0.6); 
+            color: var(--accent-lime); 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
         }
 
-        th {
-            background: rgba(0,0,0,0.2);
-            color: var(--text-dim);
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            padding: 16px 20px;
-            letter-spacing: 0.05em;
+        td { padding: 18px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        tr:hover td { background: rgba(210, 249, 111, 0.04); }
+
+        /* Ticks */
+        .status-circles { display: flex; gap: 12px; }
+        .tick {
+            width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #444;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: transparent; color: transparent; font-size: 16px; transition: 0.3s;
         }
 
-        td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 14px;
-        }
+        .tick.sent.active { border-color: var(--accent-lime); color: var(--accent-lime); background: rgba(210, 249, 111, 0.15); }
+        .tick.made.active { border-color: #00ff88; color: #00ff88; background: rgba(0, 255, 136, 0.15); }
 
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.02); }
+        .ln-link { color: var(--accent-lime); text-decoration: none; font-weight: bold; font-size: 11px; opacity: 0.8; }
+        .ln-link:hover { opacity: 1; text-shadow: 0 0 8px var(--accent-lime); }
 
-        .name-cell { font-weight: 600; color: #fff; }
-        .sub-text { color: var(--text-dim); font-size: 12px; display: block; }
+        .del-icon { cursor: pointer; color: #444; border: none; background: none; font-size: 18px; transition: 0.2s; }
+        .del-icon:hover { color: var(--danger); transform: scale(1.2); }
 
-        /* Status Toggles (The Ticks) */
-        .status-group { display: flex; gap: 8px; }
-
-        .tick-circle {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: transparent;
-            color: transparent;
-            font-size: 16px;
-        }
-
-        .tick-sent.active {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
-
-        .tick-accepted.active {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: var(--success-green);
-            color: var(--success-green);
-        }
-
-        /* Actions */
-        .action-btns { display: flex; gap: 10px; }
-        .icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-        }
-        .icon-btn:hover { color: var(--danger-red); background: rgba(239, 68, 68, 0.1); }
-        .ln-link { color: var(--accent-blue); text-decoration: none; font-weight: 600; }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8);
-            display: none; align-items: center; justify-content: center; z-index: 100;
-        }
-
-        .modal {
+        /* Growth Footer */
+        .footer-stats {
+            margin-top: 25px;
+            padding: 15px 25px;
             background: var(--bg-card);
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 400px;
             border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-dim);
         }
+
+        .stat-highlight { color: var(--accent-lime); font-weight: 800; }
 
         .hidden { display: none !important; }
 
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-lime); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Network Management Dashboard</h2>
+    <h2>
+        Network Manager
+        <div style="display: flex; gap: 10px;">
+            <button class="btn sec-btn" onclick="exportToFile()" style="height: 35px; padding: 0 15px;">Backup</button>
+            <button class="btn sec-btn" onclick="document.getElementById('importFile').click()" style="height: 35px; padding: 0 15px;">Import</button>
+            <input type="file" id="importFile" hidden onchange="importFromFile(event)">
+        </div>
+    </h2>
 
     <div class="form-section">
-        <input type="text" id="newName" placeholder="Full Name">
-        <input type="text" id="newCollege" placeholder="Organization/College">
-        <input type="text" id="newPost" placeholder="Quality (e.g. High)">
-        <input type="text" id="newLink" placeholder="LinkedIn URL">
-        <button class="add-btn" onclick="addConnection()">Add Customer</button>
+        <input type="text" id="nameIn" placeholder="FULL NAME">
+        <input type="text" id="orgIn" placeholder="ORGANIZATION">
+        <input type="text" id="qualIn" placeholder="QUALITY (HIGH/MID)">
+        <input type="text" id="linkIn" placeholder="LINKEDIN URL">
+        <button class="btn add-btn" onclick="createNewEntry()">Add</button>
     </div>
 
-    <div class="toolbar">
-        <input type="text" class="search-box" id="searchInput" placeholder="Search by name or org..." onkeyup="filterTable()">
+    <div class="controls">
+        <input type="text" id="searchBar" placeholder="SEARCH DATABASE..." onkeyup="runFilters()" style="max-width: 350px;">
         <div style="display: flex; gap: 10px;">
-            <button class="btn-outline" onclick="sortData()">Sort A-Z</button>
-            <button class="btn-outline" onclick="exportData()">Export JSON</button>
+            <select id="statusFilter" onchange="runFilters()">
+                <option value="all">All Items</option>
+                <option value="pending">Not Sent</option>
+                <option value="sent">Request Sent</option>
+                <option value="connected">Connected</option>
+            </select>
+            <button class="btn sec-btn" onclick="sortByAlpha()" style="height: 45px;">A-Z</button>
         </div>
     </div>
 
-    <div class="table-container">
-        <table id="networkTable">
+    <div class="table-wrapper">
+        <table>
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>Connection</th>
                     <th>Organization</th>
                     <th>Quality</th>
-                    <th>Status (Sent / Made)</th>
-                    <th>LinkedIn</th>
-                    <th>Actions</th>
+                    <th>Sent / Connected</th>
+                    <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
-</div>
 
-<div class="modal-overlay" id="modalOverlay">
-    <div class="modal">
-        <h3>Remove Connection?</h3>
-        <p style="color: var(--text-dim)">This record will be permanently deleted from local storage.</p>
-        <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: center;">
-            <button class="add-btn" style="background: var(--danger-red)" id="confirmDelete">Delete</button>
-            <button class="btn-outline" onclick="closeModal()">Cancel</button>
-        </div>
+    <div class="footer-stats">
+        <div>Total Database: <span class="stat-highlight" id="totalCount">0</span></div>
+        <div>Active Connections: <span class="stat-highlight" id="activeCount" style="color:#00ff88">0</span></div>
     </div>
 </div>
 
 <script>
-    let connections = JSON.parse(localStorage.getItem('masterNetwork')) || [];
-    let deleteId = null;
+    let networkData = JSON.parse(localStorage.getItem('ln_network_vault')) || [];
 
-    window.onload = renderAll;
+    window.onload = renderTable;
 
-    function addConnection() {
-        const name = document.getElementById('newName').value;
-        const college = document.getElementById('newCollege').value;
-        const post = document.getElementById('newPost').value;
-        const link = document.getElementById('newLink').value;
+    function createNewEntry() {
+        const name = document.getElementById('nameIn').value;
+        const org = document.getElementById('orgIn').value;
+        const qual = document.getElementById('qualIn').value;
+        const link = document.getElementById('linkIn').value;
 
-        if(!name) return alert("Name is required");
+        if (!name || !org) return alert("Required: Name & Organization.");
 
-        const newEntry = {
+        networkData.push({
             id: Date.now(),
-            name,
-            college,
-            post: post || 'N/A',
-            link,
-            isSent: false,
-            isMade: false
-        };
+            name, org, qual: qual || 'Mid', link,
+            sent: false, made: false
+        });
 
-        connections.push(newEntry);
-        saveData();
-        renderAll();
-        
-        // Clear inputs
-        ['newName','newCollege','newPost','newLink'].forEach(id => document.getElementById(id).value = '');
+        syncAndRefresh();
+        ['nameIn', 'orgIn', 'qualIn', 'linkIn'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function renderAll() {
+    function renderTable() {
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
+        let activeConnections = 0;
 
-        connections.forEach(item => {
+        networkData.forEach(item => {
+            if(item.made) activeConnections++;
             const row = document.createElement('tr');
             row.setAttribute('data-id', item.id);
             row.innerHTML = `
-                <td class="name-cell">${item.name}<span class="sub-text">ID: ${item.id.toString().slice(-6)}</span></td>
-                <td>${item.college}</td>
-                <td><span style="color: ${item.post.toLowerCase() === 'high' ? '#8b5cf6' : '#94a3b8'}">${item.post}</span></td>
                 <td>
-                    <div class="status-group">
-                        <button class="tick-circle tick-sent ${item.isSent ? 'active' : ''}" 
-                                onclick="toggleStatus(${item.id}, 'isSent')" title="Connection Sent">✓</button>
-                        <button class="tick-circle tick-accepted ${item.isMade ? 'active' : ''}" 
-                                onclick="toggleStatus(${item.id}, 'isMade')" title="Connection Made">✓</button>
+                    <div style="font-weight:700; color:#fff; margin-bottom: 2px;">${item.name}</div>
+                    ${item.link ? `<a href="${item.link}" target="_blank" class="ln-link">PROFILE</a>` : ''}
+                </td>
+                <td style="color:#aaa">${item.org}</td>
+                <td><span style="color:${item.qual.toLowerCase() === 'high' ? 'var(--accent-lime)' : '#666'}; font-weight: bold;">${item.qual.toUpperCase()}</span></td>
+                <td>
+                    <div class="status-circles">
+                        <button class="tick sent ${item.sent ? 'active' : ''}" onclick="toggleState(${item.id}, 'sent')">✓</button>
+                        <button class="tick made ${item.made ? 'active' : ''}" onclick="toggleState(${item.id}, 'made')">✓</button>
                     </div>
                 </td>
-                <td>
-                    ${item.link ? `<a href="${item.link}" target="_blank" class="ln-link">View Profile</a>` : '<span class="sub-text">No Link</span>'}
-                </td>
-                <td class="action-btns">
-                    <button class="icon-btn" onclick="openModal(${item.id})">🗑️</button>
-                </td>
+                <td><button class="del-icon" onclick="deleteEntry(${item.id})">✕</button></td>
             `;
             tbody.appendChild(row);
         });
+
+        document.getElementById('totalCount').innerText = networkData.length;
+        document.getElementById('activeCount').innerText = activeConnections;
+        runFilters();
     }
 
-    function toggleStatus(id, property) {
-        const index = connections.findIndex(c => c.id === id);
-        connections[index][property] = !connections[index][property];
-        saveData();
-        renderAll();
+    function toggleState(id, key) {
+        const index = networkData.findIndex(x => x.id === id);
+        networkData[index][key] = !networkData[index][key];
+        syncAndRefresh();
     }
 
-    function saveData() {
-        localStorage.setItem('masterNetwork', JSON.stringify(connections));
+    function deleteEntry(id) {
+        if (confirm("Delete entry?")) {
+            networkData = networkData.filter(x => x.id !== id);
+            syncAndRefresh();
+        }
     }
 
-    function filterTable() {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#tableBody tr');
-        rows.forEach(row => {
+    function syncAndRefresh() {
+        localStorage.setItem('ln_network_vault', JSON.stringify(networkData));
+        renderTable();
+    }
+
+    function sortByAlpha() {
+        networkData.sort((a, b) => a.name.localeCompare(b.name));
+        syncAndRefresh();
+    }
+
+    function runFilters() {
+        const query = document.getElementById('searchBar').value.toLowerCase();
+        const statusType = document.getElementById('statusFilter').value;
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const id = parseInt(row.getAttribute('data-id'));
+            const item = networkData.find(x => x.id === id);
             const text = row.innerText.toLowerCase();
-            row.classList.toggle('hidden', !text.includes(q));
+            let matchesStatus = true;
+            if (statusType === 'pending') matchesStatus = (!item.sent && !item.made);
+            if (statusType === 'sent') matchesStatus = (item.sent && !item.made);
+            if (statusType === 'connected') matchesStatus = item.made;
+            row.classList.toggle('hidden', !(text.includes(query) && matchesStatus));
         });
     }
 
-    function sortData() {
-        connections.sort((a, b) => a.name.localeCompare(b.name));
-        saveData();
-        renderAll();
-    }
-
-    function openModal(id) {
-        deleteId = id;
-        document.getElementById('modalOverlay').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('modalOverlay').style.display = 'none';
-        deleteId = null;
-    }
-
-    document.getElementById('confirmDelete').onclick = () => {
-        connections = connections.filter(c => c.id !== deleteId);
-        saveData();
-        renderAll();
-        closeModal();
-    };
-
-    function exportData() {
-        const blob = new Blob([JSON.stringify(connections)], {type: "application/json"});
+    function exportToFile() {
+        if(networkData.length === 0) return;
+        const blob = new Blob([JSON.stringify(networkData, null, 2)], {type: "application/json"});
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "network_backup.json";
+        a.download = `Network_Vault.json`;
         a.click();
+    }
+
+    function importFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                networkData = JSON.parse(e.target.result);
+                syncAndRefresh();
+            } catch (err) { alert("Error reading file."); }
+        };
+        reader.readAsText(file);
     }
 </script>
 </body>

@@ -7,20 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div class="container">
-    <h2>
-        Network Manager
+    <h2>Network Manager
         <div class="header-actions">
             <button class="btn sec-btn mini" onclick="exportToFile()">Backup</button>
             <button class="btn sec-btn mini" onclick="document.getElementById('importFile').click()">Import</button>
             <input type="file" id="importFile" hidden onchange="importFromFile(event)">
         </div>
     </h2>
-
-    <div id="collegeStats" class="college-summary-bar">
-        </div>
-
+    <div id="collegeStats" class="college-summary-bar"></div>
     <div class="form-section">
         <input type="text" id="nameIn" placeholder="FULL NAME">
         <input type="text" id="orgIn" placeholder="ORGANIZATION">
@@ -28,41 +23,17 @@
         <input type="text" id="linkIn" placeholder="LINKEDIN URL">
         <button class="btn add-btn" onclick="createNewEntry()">Add Connection</button>
     </div>
-
     <div class="controls">
         <input type="text" id="searchBar" placeholder="SEARCH DATABASE..." onkeyup="runFilters()">
-        <div class="filter-group">
-            <select id="statusFilter" onchange="runFilters()">
-                <option value="all">All Items</option>
-                <option value="pending">Not Sent</option>
-                <option value="sent">Request Sent</option>
-                <option value="connected">Connected</option>
-            </select>
-            <button class="btn sec-btn" onclick="sortByAlpha()">A-Z</button>
-        </div>
+        <button class="btn sec-btn" onclick="sortByAlpha()">A-Z</button>
     </div>
-
     <div class="table-wrapper">
         <table>
-            <thead>
-                <tr>
-                    <th>Connection</th>
-                    <th>Organization</th>
-                    <th>Quality</th>
-                    <th>Sent / Made</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Connection</th><th>Organization</th><th>Quality</th><th>Status</th><th>Action</th></tr></thead>
             <tbody id="tableBody"></tbody>
         </table>
     </div>
-
-    <div class="footer-stats">
-        <div>Total Database: <span class="stat-highlight" id="totalCount">0</span></div>
-        <div>Active Connections: <span class="stat-highlight" id="activeCount" style="color:#00ff88">0</span></div>
-    </div>
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>

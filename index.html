@@ -4,231 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Network | Core Dashboard</title>
-    <style>
-        :root {
-            --bg-deep: #0E100A; 
-            --bg-card: rgba(31, 31, 31, 0.85); 
-            --accent-lime: #D2F96F;
-            --text-main: #FFFFFF;
-            --text-dim: #888888;
-            --border-color: rgba(210, 249, 111, 0.15);
-            --danger: #ff4444;
-        }
-
-        body {
-            margin: 0;
-            padding: 40px 20px;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            color: var(--text-main);
-            position: relative;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* ### ANIMATED RIDGE BACKGROUND ### */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-deep);
-            z-index: -2;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 200%; height: 100%;
-            z-index: -1;
-            background-image: repeating-linear-gradient(
-                to right,
-                rgba(210, 249, 111, 0.22) 0px,
-                rgba(210, 249, 111, 0.12) 2px,
-                rgba(0, 0, 0, 0.9) 5px,
-                #000000 8px,
-                #000000 10px,
-                rgba(210, 249, 111, 0.04) 11px,
-                #000000 15px
-            );
-            mask-image: radial-gradient(circle at 20% 30%, black, rgba(0,0,0,0.7), transparent);
-            -webkit-mask-image: radial-gradient(circle at 20% 30%, black, rgba(0,0,0,0.7), transparent);
-            opacity: 0.5;
-            animation: breathe 8s ease-in-out infinite;
-        }
-
-        @keyframes breathe {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.02); }
-        }
-
-        .container { 
-            max-width: 1100px; 
-            margin: 0 auto; 
-            position: relative; 
-        }
-
-        h2 { 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
-            color: var(--accent-lime);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Input Form */
-        .form-section {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
-        }
-
-        input, select {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid #333;
-            padding: 14px;
-            border-radius: 8px;
-            color: white;
-            flex: 1;
-            min-width: 160px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        input:focus { border-color: var(--accent-lime); }
-
-        .btn {
-            padding: 0 30px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-transform: uppercase;
-            font-size: 11px;
-        }
-
-        .add-btn { background: var(--accent-lime); color: #000; }
-        .add-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(210, 249, 111, 0.5); }
-
-        .sec-btn { background: transparent; border: 1px solid var(--accent-lime); color: var(--accent-lime); }
-        .sec-btn:hover { background: var(--accent-lime); color: #000; }
-
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 15px;
-        }
-
-        /* Table */
-        .table-wrapper {
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { 
-            text-align: left; 
-            padding: 18px 25px; 
-            background: rgba(0,0,0,0.6); 
-            color: var(--accent-lime); 
-            font-size: 11px; 
-            text-transform: uppercase; 
-            letter-spacing: 1.5px;
-        }
-
-        td { padding: 18px 25px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
-        tr:hover td { background: rgba(210, 249, 111, 0.04); }
-
-        /* Ticks */
-        .status-circles { display: flex; gap: 12px; }
-        .tick {
-            width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #444;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            background: transparent; color: transparent; font-size: 16px; transition: 0.3s;
-        }
-
-        .tick.sent.active { border-color: var(--accent-lime); color: var(--accent-lime); background: rgba(210, 249, 111, 0.15); }
-        .tick.made.active { border-color: #00ff88; color: #00ff88; background: rgba(0, 255, 136, 0.15); }
-
-        .ln-link { color: var(--accent-lime); text-decoration: none; font-weight: bold; font-size: 11px; opacity: 0.8; }
-        .ln-link:hover { opacity: 1; text-shadow: 0 0 8px var(--accent-lime); }
-
-        .del-icon { cursor: pointer; color: #444; border: none; background: none; font-size: 18px; transition: 0.2s; }
-        .del-icon:hover { color: var(--danger); transform: scale(1.2); }
-
-        /* Growth Footer */
-        .footer-stats {
-            margin-top: 25px;
-            padding: 15px 25px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-dim);
-        }
-
-        .stat-highlight { color: var(--accent-lime); font-weight: 800; }
-
-        .hidden { display: none !important; }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-lime); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
     <h2>
         Network Manager
-        <div style="display: flex; gap: 10px;">
-            <button class="btn sec-btn" onclick="exportToFile()" style="height: 35px; padding: 0 15px;">Backup</button>
-            <button class="btn sec-btn" onclick="document.getElementById('importFile').click()" style="height: 35px; padding: 0 15px;">Import</button>
+        <div class="header-actions">
+            <button class="btn sec-btn mini" onclick="exportToFile()">Backup</button>
+            <button class="btn sec-btn mini" onclick="document.getElementById('importFile').click()">Import</button>
             <input type="file" id="importFile" hidden onchange="importFromFile(event)">
         </div>
     </h2>
 
+    <div id="collegeStats" class="college-summary-bar">
+        </div>
+
     <div class="form-section">
         <input type="text" id="nameIn" placeholder="FULL NAME">
         <input type="text" id="orgIn" placeholder="ORGANIZATION">
-        <input type="text" id="qualIn" placeholder="QUALITY (HIGH/MID)">
+        <input type="text" id="qualIn" placeholder="QUALITY (e.g. A+)">
         <input type="text" id="linkIn" placeholder="LINKEDIN URL">
-        <button class="btn add-btn" onclick="createNewEntry()">Add</button>
+        <button class="btn add-btn" onclick="createNewEntry()">Add Connection</button>
     </div>
 
     <div class="controls">
-        <input type="text" id="searchBar" placeholder="SEARCH DATABASE..." onkeyup="runFilters()" style="max-width: 350px;">
-        <div style="display: flex; gap: 10px;">
+        <input type="text" id="searchBar" placeholder="SEARCH DATABASE..." onkeyup="runFilters()">
+        <div class="filter-group">
             <select id="statusFilter" onchange="runFilters()">
                 <option value="all">All Items</option>
                 <option value="pending">Not Sent</option>
                 <option value="sent">Request Sent</option>
                 <option value="connected">Connected</option>
             </select>
-            <button class="btn sec-btn" onclick="sortByAlpha()" style="height: 45px;">A-Z</button>
+            <button class="btn sec-btn" onclick="sortByAlpha()">A-Z</button>
         </div>
     </div>
 
@@ -239,7 +49,7 @@
                     <th>Connection</th>
                     <th>Organization</th>
                     <th>Quality</th>
-                    <th>Sent / Connected</th>
+                    <th>Sent / Made</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -253,120 +63,6 @@
     </div>
 </div>
 
-<script>
-    let networkData = JSON.parse(localStorage.getItem('ln_network_vault')) || [];
-
-    window.onload = renderTable;
-
-    function createNewEntry() {
-        const name = document.getElementById('nameIn').value;
-        const org = document.getElementById('orgIn').value;
-        const qual = document.getElementById('qualIn').value;
-        const link = document.getElementById('linkIn').value;
-
-        if (!name || !org) return alert("Required: Name & Organization.");
-
-        networkData.push({
-            id: Date.now(),
-            name, org, qual: qual || 'Mid', link,
-            sent: false, made: false
-        });
-
-        syncAndRefresh();
-        ['nameIn', 'orgIn', 'qualIn', 'linkIn'].forEach(id => document.getElementById(id).value = '');
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        let activeConnections = 0;
-
-        networkData.forEach(item => {
-            if(item.made) activeConnections++;
-            const row = document.createElement('tr');
-            row.setAttribute('data-id', item.id);
-            row.innerHTML = `
-                <td>
-                    <div style="font-weight:700; color:#fff; margin-bottom: 2px;">${item.name}</div>
-                    ${item.link ? `<a href="${item.link}" target="_blank" class="ln-link">PROFILE</a>` : ''}
-                </td>
-                <td style="color:#aaa">${item.org}</td>
-                <td><span style="color:${item.qual.toLowerCase() === 'high' ? 'var(--accent-lime)' : '#666'}; font-weight: bold;">${item.qual.toUpperCase()}</span></td>
-                <td>
-                    <div class="status-circles">
-                        <button class="tick sent ${item.sent ? 'active' : ''}" onclick="toggleState(${item.id}, 'sent')">✓</button>
-                        <button class="tick made ${item.made ? 'active' : ''}" onclick="toggleState(${item.id}, 'made')">✓</button>
-                    </div>
-                </td>
-                <td><button class="del-icon" onclick="deleteEntry(${item.id})">✕</button></td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        document.getElementById('totalCount').innerText = networkData.length;
-        document.getElementById('activeCount').innerText = activeConnections;
-        runFilters();
-    }
-
-    function toggleState(id, key) {
-        const index = networkData.findIndex(x => x.id === id);
-        networkData[index][key] = !networkData[index][key];
-        syncAndRefresh();
-    }
-
-    function deleteEntry(id) {
-        if (confirm("Delete entry?")) {
-            networkData = networkData.filter(x => x.id !== id);
-            syncAndRefresh();
-        }
-    }
-
-    function syncAndRefresh() {
-        localStorage.setItem('ln_network_vault', JSON.stringify(networkData));
-        renderTable();
-    }
-
-    function sortByAlpha() {
-        networkData.sort((a, b) => a.name.localeCompare(b.name));
-        syncAndRefresh();
-    }
-
-    function runFilters() {
-        const query = document.getElementById('searchBar').value.toLowerCase();
-        const statusType = document.getElementById('statusFilter').value;
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const id = parseInt(row.getAttribute('data-id'));
-            const item = networkData.find(x => x.id === id);
-            const text = row.innerText.toLowerCase();
-            let matchesStatus = true;
-            if (statusType === 'pending') matchesStatus = (!item.sent && !item.made);
-            if (statusType === 'sent') matchesStatus = (item.sent && !item.made);
-            if (statusType === 'connected') matchesStatus = item.made;
-            row.classList.toggle('hidden', !(text.includes(query) && matchesStatus));
-        });
-    }
-
-    function exportToFile() {
-        if(networkData.length === 0) return;
-        const blob = new Blob([JSON.stringify(networkData, null, 2)], {type: "application/json"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Network_Vault.json`;
-        a.click();
-    }
-
-    function importFromFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                networkData = JSON.parse(e.target.result);
-                syncAndRefresh();
-            } catch (err) { alert("Error reading file."); }
-        };
-        reader.readAsText(file);
-    }
-</script>
+<script src="script.js"></script>
 </body>
 </html>

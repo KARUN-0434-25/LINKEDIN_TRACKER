@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Network | Dashboard</title>
+    <title>Core Network | Analytics Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <div class="bg-animate"></div>
@@ -19,12 +22,22 @@
                 </div>
                 
                 <div class="stats-section">
-                    <label class="section-label">NETWORKING REACH</label>
-                    <div id="collegeStats" class="stats-list">
-                        </div>
+                    <label class="section-label">VISUAL ANALYTICS</label>
+                    <div class="chart-container">
+                        <canvas id="orgChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="mode-toggle-box">
+                    <label class="section-label">INTERFACE MODE</label>
+                    <div class="toggle-container" onclick="toggleRecruiterMode()">
+                        <div id="mode-knob" class="mode-knob"></div>
+                        <span id="mode-label">STANDARD</span>
+                    </div>
                 </div>
 
                 <div class="sidebar-footer">
+                    <button class="btn-util primary-util" onclick="generatePDF()">📄 Generate PDF Report</button>
                     <button class="btn-util" onclick="exportToFile()">💾 Backup Data</button>
                     <button class="btn-util" onclick="document.getElementById('importFile').click()">📂 Import JSON</button>
                     <input type="file" id="importFile" hidden onchange="importFromFile(event)">
@@ -36,16 +49,16 @@
             <header class="top-nav">
                 <button class="menu-trigger" onclick="toggleSidebar()">☰</button>
                 <div class="page-title">
-                    <h1>Network Manager</h1>
+                    <h1 id="main-title">Network Manager</h1>
                     <p id="totalCount">0 Connections Tracked</p>
                 </div>
             </header>
 
-            <section class="glass-card form-container">
+            <section class="glass-card form-container" id="form-section">
                 <input type="hidden" id="editId">
                 <div class="form-grid">
                     <input type="text" id="nameIn" placeholder="Full Name">
-                    <input type="text" id="orgIn" placeholder="Organization (VIT, ABES, etc.)">
+                    <input type="text" id="orgIn" placeholder="Organization">
                     <input type="text" id="qualIn" placeholder="Quality (e.g. A+)">
                     <input type="text" id="linkIn" placeholder="LinkedIn URL">
                     <button class="add-btn" id="submitBtn" onclick="saveEntry()">Add Connection</button>
@@ -61,13 +74,13 @@
 
             <div class="glass-card table-card">
                 <div class="table-responsive">
-                    <table>
+                    <table id="mainTable">
                         <thead>
                             <tr>
                                 <th>Identity</th>
-                                <th>Org</th>
+                                <th class="hide-in-recruiter">Org</th>
                                 <th>Quality</th>
-                                <th>Status</th>
+                                <th class="hide-in-recruiter">Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -77,6 +90,8 @@
             </div>
         </main>
     </div>
+
+    <div id="toast-container" class="toast-container"></div>
     <script src="script.js"></script>
 </body>
 </html>

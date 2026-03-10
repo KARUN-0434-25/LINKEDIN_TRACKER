@@ -1,5 +1,71 @@
-let networkData = JSON.parse(localStorage.getItem('core_net_v4')) || [];
-window.onload = renderTable;
+let networkData = JSON.parse(localStorage.getItem('core_net_v8')) || [];
+let recruiterMode = false;
+let myChart = null; // Chart instance
+
+window.onload = () => {
+    initChart();
+    renderTable();
+};
+
+function initChart() {
+    const ctx = document.getElementById('orgChart').getContext('2d');
+    myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#3d5afe', '#7c4dff', '#ff4081', '#ff9100'] }] },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            cutout: '70%'
+        }
+    });
+}
+
+function updateChart(stats) {
+    if(!myChart) return;
+    myChart.data.labels = Object.keys(stats);
+    myChart.data.datasets[0].data = Object.values(stats);
+    myChart.update();
+}
+
+// Toast Function
+function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = message;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// PDF Generation
+async function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.setTextColor(0, 242, 255);
+    doc.text("Network Intelligence Report", 14, 22);
+    
+    const tableRows = networkData.map(item => [item.name, item.college, item.post, item.sent ? 'Sent' : 'Pending', item.link]);
+
+    doc.autoTable({
+        startY: 30,
+        head: [['Name', 'Organization', 'Quality', 'Status', 'LinkedIn']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 20, 30], textColor: [0, 242, 255] }
+    });
+    doc.save(`Network_Report_${Date.now()}.pdf`);
+    showToast("PDF Downloaded");
+}
+
+function toggleRecruiterMode() {
+    recruiterMode = !recruiterMode;
+    document.body.classList.toggle('recruiter-active');
+    document.getElementById('mode-label').innerText = recruiterMode ? "RECRUITER MODE" : "STANDARD";
+    document.getElementById('main-title').innerText = recruiterMode ? "Talent Pipeline" : "Network Manager";
+    renderTable();
+}
 
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
@@ -33,9 +99,9 @@ function renderTable() {
                 <div style="font-weight:700">${item.name}</div>
                 <a href="${item.link}" target="_blank" style="color:var(--accent); font-size:10px; text-decoration:none">🔗 PROFILE</a>
             </td>
-            <td><span style="opacity:0.6">${item.college}</span></td>
-            <td><span class="${isAplus ? 'premium-text' : ''}">${item.post}</span></td>
-            <td>
+            <td class="hide-in-recruiter"><span style="opacity:0.6">${item.college}</span></td>
+            <td><span style="${isAplus ? 'color:var(--accent); font-weight:bold' : ''}">${item.post}</span></td>
+            <td class="hide-in-recruiter">
                 <button class="status-btn ${item.sent ? 'active' : ''}" onclick="updateStatus(${item.id}, 'sent')">S</button>
                 <button class="status-btn ${item.made ? 'active' : ''}" onclick="updateStatus(${item.id}, 'made')">C</button>
             </td>
@@ -47,46 +113,22 @@ function renderTable() {
         tbody.appendChild(tr);
     });
 
-    totalDisp.innerText = `${networkData.length} Connections Tracked`;
-    renderStats(stats);
-}
-
-function renderStats(stats) {
-    const container = document.getElementById('collegeStats');
-    const total = networkData.length || 1;
-    container.innerHTML = Object.entries(stats)
-        .sort((a,b) => b[1] - a[1])
-        .map(([name, count]) => {
-            const percentage = (count / total) * 100;
-            return `
-                <div class="stat-item">
-                    <div class="stat-info">
-                        <span>${name}</span>
-                        <span>${count}</span>
-                    </div>
-                    <div style="width:100%; height:4px; background:#111; border-radius:2px; overflow:hidden">
-                        <div style="width:${percentage}%; height:100%; background:var(--accent); box-shadow:0 0 5px var(--accent)"></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
+    totalDisp.innerText = `${networkData.length} Total Connections`;
+    updateChart(stats);
 }
 
 function saveEntry() {
     const id = document.getElementById('editId').value;
     const name = document.getElementById('nameIn').value;
     const org = document.getElementById('orgIn').value;
-    
-    if(!name || !org) return alert("Fill Name and Org!");
+    if(!name || !org) return showToast("Name and Org are required");
 
     const entry = {
         id: id ? parseInt(id) : Date.now(),
-        name,
-        college: org,
+        name, college: org,
         post: document.getElementById('qualIn').value || 'A',
         link: document.getElementById('linkIn').value || '#',
-        sent: false,
-        made: false
+        sent: false, made: false
     };
 
     if(id) {
@@ -97,13 +139,14 @@ function saveEntry() {
     } else {
         networkData.push(entry);
     }
-
-    localStorage.setItem('core_net_v4', JSON.stringify(networkData));
+    localStorage.setItem('core_net_v8', JSON.stringify(networkData));
     resetForm();
     renderTable();
+    showToast("Data Saved");
 }
 
 function loadEdit(id) {
+    if(recruiterMode) toggleRecruiterMode();
     const item = networkData.find(x => x.id === id);
     document.getElementById('editId').value = item.id;
     document.getElementById('nameIn').value = item.name;
@@ -117,14 +160,15 @@ function loadEdit(id) {
 function updateStatus(id, key) {
     const idx = networkData.findIndex(x => x.id === id);
     networkData[idx][key] = !networkData[idx][key];
-    localStorage.setItem('core_net_v4', JSON.stringify(networkData));
+    localStorage.setItem('core_net_v8', JSON.stringify(networkData));
     renderTable();
 }
 
 function deleteItem(id) {
-    if(confirm("Remove connection?")) {
+    if(confirm("Permanently delete?")) {
         networkData = networkData.filter(x => x.id !== id);
-        localStorage.setItem('core_net_v4', JSON.stringify(networkData));
+        localStorage.setItem('core_net_v8', JSON.stringify(networkData));
+        showToast("Deleted");
         renderTable();
     }
 }
@@ -151,7 +195,7 @@ function exportToFile() {
     const blob = new Blob([JSON.stringify(networkData)], {type: "application/json"});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'Network_Export.json';
+    a.download = 'Network_Backup.json';
     a.click();
 }
 
@@ -159,7 +203,8 @@ function importFromFile(e) {
     const reader = new FileReader();
     reader.onload = (ev) => {
         networkData = JSON.parse(ev.target.result);
-        localStorage.setItem('core_net_v4', JSON.stringify(networkData));
+        localStorage.setItem('core_net_v8', JSON.stringify(networkData));
+        showToast("Imported");
         renderTable();
     };
     reader.readAsText(e.target.files[0]);

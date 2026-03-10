@@ -3,37 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Network | Core Dashboard</title>
+    <title>Core Network | Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<div class="container">
-    <h2>Network Manager
-        <div class="header-actions">
-            <button class="btn sec-btn mini" onclick="exportToFile()">Backup</button>
-            <button class="btn sec-btn mini" onclick="document.getElementById('importFile').click()">Import</button>
-            <input type="file" id="importFile" hidden onchange="importFromFile(event)">
-        </div>
-    </h2>
-    <div id="collegeStats" class="college-summary-bar"></div>
-    <div class="form-section">
-        <input type="text" id="nameIn" placeholder="FULL NAME">
-        <input type="text" id="orgIn" placeholder="ORGANIZATION">
-        <input type="text" id="qualIn" placeholder="QUALITY (e.g. A+)">
-        <input type="text" id="linkIn" placeholder="LINKEDIN URL">
-        <button class="btn add-btn" onclick="createNewEntry()">Add Connection</button>
+    <div class="bg-animate"></div>
+    
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">
+                    <div class="logo">CORE<span>NET</span></div>
+                    <button class="mobile-close" onclick="toggleSidebar()">✕</button>
+                </div>
+                
+                <div class="stats-section">
+                    <label class="section-label">NETWORKING REACH</label>
+                    <div id="collegeStats" class="stats-list">
+                        </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button class="btn-util" onclick="exportToFile()">💾 Backup Data</button>
+                    <button class="btn-util" onclick="document.getElementById('importFile').click()">📂 Import JSON</button>
+                    <input type="file" id="importFile" hidden onchange="importFromFile(event)">
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-nav">
+                <button class="menu-trigger" onclick="toggleSidebar()">☰</button>
+                <div class="page-title">
+                    <h1>Network Manager</h1>
+                    <p id="totalCount">0 Connections Tracked</p>
+                </div>
+            </header>
+
+            <section class="glass-card form-container">
+                <input type="hidden" id="editId">
+                <div class="form-grid">
+                    <input type="text" id="nameIn" placeholder="Full Name">
+                    <input type="text" id="orgIn" placeholder="Organization (VIT, ABES, etc.)">
+                    <input type="text" id="qualIn" placeholder="Quality (e.g. A+)">
+                    <input type="text" id="linkIn" placeholder="LinkedIn URL">
+                    <button class="add-btn" id="submitBtn" onclick="saveEntry()">Add Connection</button>
+                </div>
+            </section>
+
+            <div class="filter-row">
+                <div class="search-box">
+                    <input type="text" id="searchBar" placeholder="Search database..." onkeyup="runFilters()">
+                </div>
+                <button class="sort-btn" onclick="sortByAlpha()">SORT A-Z</button>
+            </div>
+
+            <div class="glass-card table-card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Identity</th>
+                                <th>Org</th>
+                                <th>Quality</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
     </div>
-    <div class="controls">
-        <input type="text" id="searchBar" placeholder="SEARCH DATABASE..." onkeyup="runFilters()">
-        <button class="btn sec-btn" onclick="sortByAlpha()">A-Z</button>
-    </div>
-    <div class="table-wrapper">
-        <table>
-            <thead><tr><th>Connection</th><th>Organization</th><th>Quality</th><th>Status</th><th>Action</th></tr></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</div>
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

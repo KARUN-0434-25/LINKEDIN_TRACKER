@@ -1,60 +1,53 @@
-let networkData = JSON.parse(localStorage.getItem('core_net_v8')) || [];
+let networkData = JSON.parse(localStorage.getItem('core_net_v7')) || [];
 let recruiterMode = false;
-let myChart = null; // Chart instance
+window.onload = renderTable;
 
-window.onload = () => {
-    initChart();
-    renderTable();
-};
-
-function initChart() {
-    const ctx = document.getElementById('orgChart').getContext('2d');
-    myChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#00f2ff', '#3d5afe', '#7c4dff', '#ff4081', '#ff9100'] }] },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false, 
-            plugins: { legend: { display: false } },
-            cutout: '70%'
-        }
-    });
-}
-
-function updateChart(stats) {
-    if(!myChart) return;
-    myChart.data.labels = Object.keys(stats);
-    myChart.data.datasets[0].data = Object.values(stats);
-    myChart.update();
-}
-
-// Toast Function
 function showToast(message) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerText = message;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
-// PDF Generation
+// PDF Generation Logic
 async function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    
+    showToast("Preparing PDF Report...");
+
     doc.setFontSize(20);
     doc.setTextColor(0, 242, 255);
     doc.text("Network Intelligence Report", 14, 22);
     
-    const tableRows = networkData.map(item => [item.name, item.college, item.post, item.sent ? 'Sent' : 'Pending', item.link]);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+    doc.text(`Total Connections: ${networkData.length}`, 14, 35);
+
+    const tableRows = networkData.map(item => [
+        item.name,
+        item.college,
+        item.post,
+        item.sent ? 'Sent' : 'Pending',
+        item.link
+    ]);
 
     doc.autoTable({
-        startY: 30,
+        startY: 45,
         head: [['Name', 'Organization', 'Quality', 'Status', 'LinkedIn']],
         body: tableRows,
         theme: 'grid',
-        headStyles: { fillColor: [0, 20, 30], textColor: [0, 242, 255] }
+        headStyles: { fillColor: [0, 20, 30], textColor: [0, 242, 255] },
+        styles: { fontSize: 8 },
+        columnStyles: { 4: { cellWidth: 50 } }
     });
+
     doc.save(`Network_Report_${Date.now()}.pdf`);
     showToast("PDF Downloaded");
 }
@@ -114,7 +107,28 @@ function renderTable() {
     });
 
     totalDisp.innerText = `${networkData.length} Total Connections`;
-    updateChart(stats);
+    renderStats(stats);
+}
+
+function renderStats(stats) {
+    const container = document.getElementById('collegeStats');
+    const total = networkData.length || 1;
+    container.innerHTML = Object.entries(stats)
+        .sort((a,b) => b[1] - a[1])
+        .map(([name, count]) => {
+            const pct = (count / total) * 100;
+            return `
+                <div class="stat-item">
+                    <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px">
+                        <span>${name}</span>
+                        <span>${count}</span>
+                    </div>
+                    <div style="width:100%; height:3px; background:#111; border-radius:2px">
+                        <div style="width:${pct}%; height:100%; background:var(--accent)"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
 }
 
 function saveEntry() {
@@ -136,13 +150,14 @@ function saveEntry() {
         entry.sent = networkData[idx].sent;
         entry.made = networkData[idx].made;
         networkData[idx] = entry;
+        showToast("Entry Updated");
     } else {
         networkData.push(entry);
+        showToast("Contact Added");
     }
-    localStorage.setItem('core_net_v8', JSON.stringify(networkData));
+    localStorage.setItem('core_net_v7', JSON.stringify(networkData));
     resetForm();
     renderTable();
-    showToast("Data Saved");
 }
 
 function loadEdit(id) {
@@ -160,15 +175,15 @@ function loadEdit(id) {
 function updateStatus(id, key) {
     const idx = networkData.findIndex(x => x.id === id);
     networkData[idx][key] = !networkData[idx][key];
-    localStorage.setItem('core_net_v8', JSON.stringify(networkData));
+    localStorage.setItem('core_net_v7', JSON.stringify(networkData));
     renderTable();
 }
 
 function deleteItem(id) {
     if(confirm("Permanently delete?")) {
         networkData = networkData.filter(x => x.id !== id);
-        localStorage.setItem('core_net_v8', JSON.stringify(networkData));
-        showToast("Deleted");
+        localStorage.setItem('core_net_v7', JSON.stringify(networkData));
+        showToast("Contact Removed");
         renderTable();
     }
 }
@@ -203,8 +218,8 @@ function importFromFile(e) {
     const reader = new FileReader();
     reader.onload = (ev) => {
         networkData = JSON.parse(ev.target.result);
-        localStorage.setItem('core_net_v8', JSON.stringify(networkData));
-        showToast("Imported");
+        localStorage.setItem('core_net_v7', JSON.stringify(networkData));
+        showToast("Import Complete");
         renderTable();
     };
     reader.readAsText(e.target.files[0]);

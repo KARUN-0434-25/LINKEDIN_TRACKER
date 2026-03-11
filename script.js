@@ -34,7 +34,7 @@ async function generatePDF() {
         item.name,
         item.college,
         item.post,
-        item.sent ? 'Sent' : 'Pending',
+        (item.sent ? 'Sent ' : '') + (item.made ? 'Connected' : ''),
         item.link
     ]);
 
@@ -87,6 +87,10 @@ function renderTable() {
         const tr = document.createElement('tr');
         if (isAplus) tr.className = 'row-premium';
 
+        // Styling for the buttons: active state uses accent colors
+        const sentStyle = item.sent ? 'border-color: var(--accent); color: var(--accent); background: rgba(0, 242, 255, 0.1);' : '';
+        const madeStyle = item.made ? 'border-color: var(--accent); color: var(--accent); background: rgba(0, 242, 255, 0.1);' : '';
+
         tr.innerHTML = `
             <td>
                 <div style="font-weight:700">${item.name}</div>
@@ -95,8 +99,8 @@ function renderTable() {
             <td class="hide-in-recruiter"><span style="opacity:0.6">${item.college}</span></td>
             <td><span style="${isAplus ? 'color:var(--accent); font-weight:bold' : ''}">${item.post}</span></td>
             <td class="hide-in-recruiter">
-                <button class="status-btn ${item.sent ? 'active' : ''}" onclick="updateStatus(${item.id}, 'sent')">S</button>
-                <button class="status-btn ${item.made ? 'active' : ''}" onclick="updateStatus(${item.id}, 'made')">C</button>
+                <button class="status-btn" style="${sentStyle}" onclick="updateStatus(${item.id}, 'sent')">${item.sent ? '✓' : 'S'}</button>
+                <button class="status-btn" style="${madeStyle}" onclick="updateStatus(${item.id}, 'made')">${item.made ? '✓' : 'C'}</button>
             </td>
             <td>
                 <span onclick="loadEdit(${item.id})" style="cursor:pointer; margin-right:15px">✎</span>
@@ -174,9 +178,11 @@ function loadEdit(id) {
 
 function updateStatus(id, key) {
     const idx = networkData.findIndex(x => x.id === id);
-    networkData[idx][key] = !networkData[idx][key];
-    localStorage.setItem('core_net_v7', JSON.stringify(networkData));
-    renderTable();
+    if(idx !== -1) {
+        networkData[idx][key] = !networkData[idx][key];
+        localStorage.setItem('core_net_v7', JSON.stringify(networkData));
+        renderTable(); // Re-render to show new tick state
+    }
 }
 
 function deleteItem(id) {
